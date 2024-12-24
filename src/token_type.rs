@@ -116,11 +116,7 @@ pub struct Token {
 }
 
 impl Token {
-    pub fn new(
-        token_type: TokenType,
-        lexeme: String,
-        literal: Option<Literal>,
-    ) -> Self {
+    pub fn new(token_type: TokenType, lexeme: String, literal: Option<Literal>) -> Self {
         Token {
             token_type,
             lexeme,
@@ -137,4 +133,3 @@ impl fmt::Display for Token {
         }
     }
 }
-

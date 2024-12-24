@@ -1,6 +1,10 @@
 use std::collections::HashMap;
 
-use crate::{error, token_type::{Literal, Token, TokenType}, ErrorReporter};
+use crate::{
+    error,
+    token_type::{Literal, Token, TokenType},
+    ErrorReporter,
+};
 
 pub struct Scanner<'a> {
     source: Vec<char>,
@@ -33,11 +37,11 @@ impl<'a> Scanner<'a> {
         keywords.insert("var", TokenType::Var);
         keywords.insert("while", TokenType::While);
 
-        Scanner { 
-            source: source.chars().collect(), 
-            tokens: vec![], 
-            start: 0, 
-            current: 0, 
+        Scanner {
+            source: source.chars().collect(),
+            tokens: vec![],
+            start: 0,
+            current: 0,
             line_no: 1,
             keywords,
             error_reporter,
@@ -60,20 +64,28 @@ impl<'a> Scanner<'a> {
     }
 
     fn next_match(&mut self, expected: char) -> bool {
-        if self.is_at_end() { return false; }
-        if self.source[self.current] != expected { return false; }
+        if self.is_at_end() {
+            return false;
+        }
+        if self.source[self.current] != expected {
+            return false;
+        }
 
         self.current += 1;
         true
     }
 
     fn peek(&self) -> char {
-        if self.is_at_end() { return '\0'; }
+        if self.is_at_end() {
+            return '\0';
+        }
         self.source[self.current]
     }
-    
+
     fn peek_next(&self) -> char {
-        if self.current + 1 >= self.source.len() { return '\0'; }
+        if self.current + 1 >= self.source.len() {
+            return '\0';
+        }
         self.source[self.current + 1]
     }
 
@@ -93,7 +105,9 @@ impl<'a> Scanner<'a> {
         // for the closing '"'
         self.advance();
 
-        let value: String = self.source[(self.start+1)..(self.current-1)].iter().collect();
+        let value: String = self.source[(self.start + 1)..(self.current - 1)]
+            .iter()
+            .collect();
         self.add_token(TokenType::String, Some(Literal::Str(value)));
     }
 
@@ -114,7 +128,11 @@ impl<'a> Scanner<'a> {
         match value.parse::<f64>() {
             Ok(num) => self.add_token(TokenType::Number, Some(Literal::Number(num))),
             Err(_) => {
-                error(self.error_reporter, self.line_no, "Invalid numeric literal.");
+                error(
+                    self.error_reporter,
+                    self.line_no,
+                    "Invalid numeric literal.",
+                );
             }
         }
     }
@@ -125,7 +143,10 @@ impl<'a> Scanner<'a> {
         }
 
         let text: String = self.source[self.start..self.current].iter().collect();
-        let token_type = self.keywords.get(text.as_str()).unwrap_or(&TokenType::Identifier);
+        let token_type = self
+            .keywords
+            .get(text.as_str())
+            .unwrap_or(&TokenType::Identifier);
 
         self.add_token(token_type.clone(), None);
     }
@@ -145,35 +166,47 @@ impl<'a> Scanner<'a> {
             '*' => self.add_token(TokenType::Star, None),
             '!' => {
                 let next: bool = self.next_match('=');
-                self.add_token(if next {
-                    TokenType::BangEqual
-                } else {
-                    TokenType::Bang
-                }, None);
+                self.add_token(
+                    if next {
+                        TokenType::BangEqual
+                    } else {
+                        TokenType::Bang
+                    },
+                    None,
+                );
             }
             '=' => {
                 let next: bool = self.next_match('=');
-                self.add_token(if next {
-                    TokenType::EqualEqual
-                } else {
-                    TokenType::Equal
-                }, None);
+                self.add_token(
+                    if next {
+                        TokenType::EqualEqual
+                    } else {
+                        TokenType::Equal
+                    },
+                    None,
+                );
             }
             '<' => {
                 let next: bool = self.next_match('=');
-                self.add_token(if next {
-                    TokenType::LessEqual
-                } else {
-                    TokenType::Less
-                }, None);
+                self.add_token(
+                    if next {
+                        TokenType::LessEqual
+                    } else {
+                        TokenType::Less
+                    },
+                    None,
+                );
             }
             '>' => {
                 let next: bool = self.next_match('=');
-                self.add_token(if next {
-                    TokenType::GreaterEqual
-                } else {
-                    TokenType::Greater
-                }, None);
+                self.add_token(
+                    if next {
+                        TokenType::GreaterEqual
+                    } else {
+                        TokenType::Greater
+                    },
+                    None,
+                );
             }
             '/' => {
                 if self.next_match('/') {
@@ -191,7 +224,7 @@ impl<'a> Scanner<'a> {
                 if c.is_digit(10) {
                     self.number();
                 } else if c.is_alphabetic() || c == '_' {
-                   self.identifier(); 
+                    self.identifier();
                 } else {
                     error(self.error_reporter, self.line_no, "Unexpected character.");
                 }
@@ -205,13 +238,9 @@ impl<'a> Scanner<'a> {
             self.scan_token();
         }
 
-        self.tokens.push(
-            Token::new(
-                TokenType::EOF, 
-                String::new(),
-                None, 
-            )
-        );
+        self.tokens
+            .push(Token::new(TokenType::EOF, String::new(), None));
         &self.tokens
     }
 }
+

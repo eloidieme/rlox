@@ -1,9 +1,9 @@
+use scanner::Scanner;
 use std::error::Error;
 use std::io::{Stdin, Write};
 use std::path::Path;
 use std::process::exit;
 use std::{env, io};
-use scanner::Scanner;
 use token_type::Token;
 
 mod scanner;
@@ -82,7 +82,7 @@ fn run(source: &str, error_reporter: &mut ErrorReporter) {
     let tokens: &[Token] = scanner.scan_tokens();
 
     for token in tokens {
-       println!("{:?}", token);
+        println!("{:?}", token);
     }
 }
 
